@@ -1,0 +1,958 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CALC Matched Betting Pro</title>
+  
+  <!-- CONFIGURACIÓN PWA PARA INSTALAR COMO APP -->
+  <link rel="manifest" href="data:application/manifest+json;charset=utf-8,%7B%22name%22%3A%22CALC%20Matched%20Betting%20Pro%22%2C%22short_name%22%3A%22CALC%20MB%22%2C%22start_url%22%3A%22.%22%2C%22display%22%3A%22standalone%22%2C%22background_color%22%3A%22%23121212%22%2C%22theme_color%22%3A%22%23ffb3a7%22%2C%22icons%22%3A%5B%7B%22src%22%3A%22data%3Aimage%2Fsvg%2Bxml%3C%3Fxml%20version%3D%271.0%27%20encoding%3D%27UTF-8%27%3F%3E%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20viewBox%3D%270%27%20width%3D%27512%27%20height%3D%27512%27%3E%3Crect%20width%3D%27512%27%20height%3D%27512%27%20fill%3D%27%231e1e1e%27%20rx%3D%27100%27%2F%3E%3Cpath%20d%3D%27M120%20180h272M120%20256h272M120%20332h160%27%20stroke%3D%27%23ffb3a7%27%20stroke-width%3D%2736%27%20stroke-linecap%3D%27round%27%2F%3E%3Ccircle%20cx%3D%27350%27%20cy%3D%27332%27%20r%2720%27%20fill%3D%27%2310b981%27%2F%3E%3C%2Fsvg%3E%22%2C%22sizes%22%3A%22512x512%22%2C%22type%22%3A%22image%2Fsvg%2Bxml%22%7D%5D%7D">
+  <meta name="theme-color" content="#ffb3a7">
+
+  <style>
+    :root {
+      --bg: #f8f9fa;
+      --card-bg: #ffffff;
+      --text: #000000;
+      --border: #d0d0d0;
+      --primary: #ffb3a7;
+      --accent: #e0f2fe;
+      --black: #000000;
+      --green: #10b981;
+      --red: #ef4444;
+    }
+    body.dark {
+      --bg: #121212;
+      --card-bg: #1e1e1e;
+      --text: #ffffff;
+      --border: #333333;
+      --primary: #d96b5a;
+      --accent: #1e3a8a;
+      --black: #444444;
+    }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background-color: var(--bg);
+      color: var(--text);
+      margin: 0;
+      padding: 12px;
+      max-width: 500px;
+      margin: auto;
+    }
+
+    .top-nav {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+    .top-nav button {
+      flex: 1;
+      padding: 12px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: var(--card-bg);
+      color: var(--text);
+      font-weight: bold;
+      cursor: pointer;
+    }
+    .top-nav button.active {
+      background: var(--black);
+      color: #fff;
+    }
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+    .title { font-size: 18px; font-weight: bold; }
+    .card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 14px;
+      margin-bottom: 12px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    }
+    .btn-group {
+      display: flex;
+      gap: 6px;
+      margin-bottom: 8px;
+    }
+    .btn {
+      flex: 1;
+      padding: 8px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: var(--card-bg);
+      color: var(--text);
+      font-size: 13px;
+      cursor: pointer;
+    }
+    .btn.active-salmon { background: var(--primary); font-weight: bold; color: #000; }
+    .btn.active-black { background: var(--black); color: #fff; font-weight: bold; }
+    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 8px; }
+    .input-group label { display: block; font-size: 12px; font-weight: bold; margin-bottom: 4px; }
+    .input-group input {
+      width: 100%;
+      box-sizing: border-box;
+      padding: 10px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: var(--card-bg);
+      color: var(--text);
+      font-size: 15px;
+    }
+    .input-group input.blue-bg { background-color: var(--accent); }
+    .input-group input.salmon-bg { background-color: #ffe4e1; }
+    body.dark .input-group input.salmon-bg { background-color: #5a2a26; }
+    
+    .result-box {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 12px;
+      margin-top: 12px;
+    }
+    .result-section-title {
+      font-weight: bold;
+      font-size: 15px;
+      margin-bottom: 10px;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 4px;
+    }
+    
+    .result-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+      font-size: 14px;
+    }
+    .res-val {
+      min-width: 100px;
+      text-align: right;
+      display: inline-block;
+    }
+    .highlight-pill {
+      background: #fef08a;
+      color: #000;
+      padding: 4px 8px;
+      border-radius: 12px;
+      font-weight: bold;
+      display: inline-block;
+      text-align: right;
+      box-sizing: border-box;
+    }
+
+    .table-container {
+      width: 100%;
+      overflow-x: auto;
+      margin-top: 10px;
+    }
+    .table-desglose {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 12px;
+      text-align: center;
+    }
+    .table-desglose th, .table-desglose td {
+      padding: 6px 3px;
+      border: 1px solid var(--border);
+      text-align: center;
+      vertical-align: middle;
+    }
+    .table-desglose th.header-ganador {
+      background: var(--black);
+      color: white;
+      font-weight: bold;
+    }
+    .val-pos { color: var(--green); font-weight: bold; }
+    .val-neg { color: var(--red); font-weight: bold; }
+
+    .badge-w {
+      background-color: #10b981;
+      color: white;
+      padding: 2px 4px;
+      border-radius: 4px;
+      font-weight: bold;
+      font-size: 10px;
+      margin-right: 1px;
+      display: inline-block;
+    }
+    .badge-l {
+      background-color: #ef4444;
+      color: white;
+      padding: 2px 4px;
+      border-radius: 4px;
+      font-weight: bold;
+      font-size: 10px;
+      margin-right: 1px;
+      display: inline-block;
+    }
+
+    .sub-breakdown {
+      font-size: 10px;
+      margin-top: 3px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 3px;
+      line-height: 1.2;
+    }
+
+    .tab-content { display: none; }
+    .tab-content.active { display: block; }
+
+    @media (max-width: 420px) {
+      .table-desglose { font-size: 11px; }
+      .table-desglose th, .table-desglose td { padding: 5px 2px; }
+      .sub-breakdown { font-size: 9px; gap: 2px; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Navegación de Ventanas -->
+  <div class="top-nav">
+    <button class="active" onclick="switchTab('estandar', this)">Calculadora Básica</button>
+    <button onclick="switchTab('secuencial', this)">Sequential Lay</button>
+  </div>
+
+  <div class="header">
+    <span class="title">CALC Matched Betting</span>
+    <button onclick="document.body.classList.toggle('dark')" style="border:none; background:none; font-size:22px; cursor:pointer;">🌙</button>
+  </div>
+
+  <!-- VENTANA 1: CALCULADORA BÁSICA -->
+  <div id="estandar" class="tab-content active">
+    <div class="card">
+      <div style="font-size:13px; font-weight:bold; margin-bottom:6px;">Modo:</div>
+      <div class="btn-group">
+        <button class="btn active-salmon" id="btnModeExchange" onclick="selectExchangeMode(this, 'exchange')">Exchange</button>
+        <button class="btn" id="btnModeBookie" onclick="selectExchangeMode(this, 'bookie')">Bookie</button>
+      </div>
+      <div class="btn-group">
+        <button class="btn active-black" onclick="selectTypeMode('estandar', this, 'SR')">Normal (SR)</button>
+        <button class="btn" onclick="selectTypeMode('estandar', this, 'SNR')">Freebet (SNR)</button>
+        <button class="btn" onclick="selectTypeMode('estandar', this, 'FSR')">Freebet (SR)</button>
+      </div>
+    </div>
+
+    <!-- SECCIÓN INTERFAZ EXCHANGE -->
+    <div id="sectionExchange" class="card">
+      <b>Entradas</b>
+      <div class="grid">
+        <div class="input-group">
+          <label>Importe ($)</label>
+          <input type="text" inputmode="decimal" id="importe" value="200" oninput="guardarYCalcularEstandar()">
+        </div>
+        <div class="input-group">
+          <label>Cuota Bookie</label>
+          <input type="text" inputmode="decimal" id="cuotaBookie" value="2.40" class="blue-bg" oninput="guardarYCalcularEstandar()">
+        </div>
+        <div class="input-group">
+          <label>Cuota LAY</label>
+          <input type="text" inputmode="decimal" id="cuotaLay" value="2.40" class="salmon-bg" oninput="guardarYCalcularEstandar()">
+        </div>
+        <div class="input-group">
+          <label>Comisión Exchange (%)</label>
+          <input type="text" inputmode="decimal" id="comision" value="4.55" class="salmon-bg" oninput="guardarYCalcularEstandar()">
+        </div>
+      </div>
+
+      <div class="result-box">
+        <div class="result-section-title">Resultados</div>
+        <div class="result-row">
+          <span>Apuesta LAY en EXCHANGE:</span>
+          <span class="highlight-pill" id="resLay">0.00 $</span>
+        </div>
+        <div class="result-row">
+          <span>Riesgo total:</span>
+          <b id="resResp" class="res-val">0.00 $</b>
+        </div>
+        <div class="result-row" style="border-top:1px dashed var(--border); padding-top:6px; margin-top:6px;">
+          <b>Beneficio total:</b>
+          <span id="resBeneficio" class="res-val" style="font-size:16px;">0.00 $</span>
+        </div>
+
+        <div style="margin-top:14px; font-weight:bold; font-size:14px;">Desglose de beneficios:</div>
+        <div class="table-container">
+          <table class="table-desglose">
+            <thead>
+              <tr>
+                <th rowspan="2" style="background:#f1f5f9; color:#000;">Desglose</th>
+                <th colspan="2" class="header-ganador">Ganador</th>
+              </tr>
+              <tr>
+                <th style="background:#f1f5f9; color:#000;">Bookie</th>
+                <th style="background:#ffe4e1; color:#000;">Exchange</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td style="background:#e0f2fe; font-weight:bold;">Bookie</td>
+                <td id="tblBookieWinBookie">0.00 $</td>
+                <td id="tblExWinBookie">0.00 $</td>
+              </tr>
+              <tr>
+                <td style="background:#ffe4e1; font-weight:bold;">Exchange</td>
+                <td id="tblBookieWinEx">0.00 $</td>
+                <td id="tblExWinEx">0.00 $</td>
+              </tr>
+              <tr style="border-top:2px solid var(--black);">
+                <td style="font-weight:bold;">Total</td>
+                <td id="tblBookieWinTotal">0.00 $</td>
+                <td id="tblExWinTotal">0.00 $</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div style="margin-top:10px; font-size:13px;">
+          <b>Rating:</b> <span id="resRating">0.00%</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- SECCIÓN INTERFAZ BOOKIE (DUTCHING) -->
+    <div id="sectionBookie" class="card" style="display:none;">
+      <b>Entradas</b>
+      <div class="grid">
+        <div class="input-group">
+          <label>Importe ($)</label>
+          <input type="text" inputmode="decimal" id="bkImporte" value="500" oninput="guardarYCalcularBookie()">
+        </div>
+        <div class="input-group">
+          <label>Cuota Bookie #1</label>
+          <input type="text" inputmode="decimal" id="bkCuota1" value="3.00" class="blue-bg" oninput="guardarYCalcularBookie()">
+        </div>
+        <div class="input-group" style="grid-column: span 2;">
+          <label>Cuota Bookie #2</label>
+          <input type="text" inputmode="decimal" id="bkCuota2" value="1.60" class="blue-bg" oninput="guardarYCalcularBookie()">
+        </div>
+      </div>
+
+      <div class="result-box">
+        <div class="result-section-title">Resultados</div>
+        <div class="result-row">
+          <span>Apuesta en Bookie #2:</span>
+          <span class="highlight-pill" id="bkResApuesta2">0.00 $</span>
+        </div>
+        <div class="result-row">
+          <span>Beneficio Bookie #2:</span>
+          <b id="bkResBen2" class="res-val">0.00 $</b>
+        </div>
+        <div class="result-row" style="border-top:1px dashed var(--border); padding-top:6px; margin-top:6px;">
+          <b>Beneficio total:</b>
+          <span id="bkResBenTotal" class="res-val" style="font-size:16px;">0.00 $</span>
+        </div>
+
+        <div style="margin-top:14px; font-weight:bold; font-size:14px;">Desglose de beneficios:</div>
+        <div class="table-container">
+          <table class="table-desglose">
+            <thead>
+              <tr>
+                <th rowspan="2" style="background:#f1f5f9; color:#000;">Desglose</th>
+                <th colspan="2" class="header-ganador">Ganador</th>
+              </tr>
+              <tr>
+                <th style="background:#e0f2fe; color:#000;">Bookie #1</th>
+                <th style="background:#e0f2fe; color:#000;">Bookie #2</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td style="background:#e0f2fe; font-weight:bold;">Bookie #1</td>
+                <td id="bkTblB1WinB1">0.00 $</td>
+                <td id="bkTblB2WinB1">0.00 $</td>
+              </tr>
+              <tr>
+                <td style="background:#e0f2fe; font-weight:bold;">Bookie #2</td>
+                <td id="bkTblB1WinB2">0.00 $</td>
+                <td id="bkTblB2WinB2">0.00 $</td>
+              </tr>
+              <tr style="border-top:2px solid var(--black);">
+                <td style="font-weight:bold;">Total</td>
+                <td id="bkTblTotalB1">0.00 $</td>
+                <td id="bkTblTotalB2">0.00 $</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div style="margin-top:10px; font-size:13px;">
+          <b>Rating:</b> <span id="bkRating">0.00%</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- VENTANA 2: SEQUENTIAL LAY -->
+  <div id="secuencial" class="tab-content">
+    <div class="card">
+      <div style="font-size:13px; font-weight:bold; margin-bottom:6px;">Modo:</div>
+      <div class="btn-group">
+        <button class="btn active-salmon" id="btnSeqModeEx" onclick="selectSeqMode('exchange', this)">Exchange</button>
+        <button class="btn" id="btnSeqModeBk" onclick="selectSeqMode('bookie', this)">Bookie</button>
+      </div>
+
+      <div class="btn-group">
+        <button class="btn active-black" id="btnSeqSR" onclick="selectTypeMode('secuencial', this, 'SR')">Normal (SR)</button>
+        <button class="btn" id="btnSeqSNR" onclick="selectTypeMode('secuencial', this, 'SNR')">Freebet (SNR)</button>
+        <button class="btn" id="btnSeqFSR" onclick="selectTypeMode('secuencial', this, 'FSR')">Freebet (SR)</button>
+      </div>
+
+      <div style="font-size:13px; font-weight:bold; margin-top:8px; margin-bottom:6px;">Opciones de Selección:</div>
+      <div class="btn-group">
+        <button class="btn" id="btnPatas2" onclick="selectPatas(2, this)">2 Patas</button>
+        <button class="btn active-salmon" id="btnPatas3" onclick="selectPatas(3, this)">3 Patas</button>
+        <button class="btn" id="btnPatas4" onclick="selectPatas(4, this)">4 Patas</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <b id="seqCardTitle">Sequential Multi-Lay</b>
+      <div class="grid" style="margin-top:10px;">
+        <div class="input-group">
+          <label>Apuesta Back ($)</label>
+          <input type="text" inputmode="decimal" id="seqBackStake" value="100" oninput="guardarYCalcularSecuencial()">
+        </div>
+        <div class="input-group">
+          <label>Cuota Back</label>
+          <input type="text" inputmode="decimal" id="seqBackOdds" value="6.393" oninput="guardarYCalcularSecuencial()">
+        </div>
+        <div class="input-group" id="groupSeqCom" style="grid-column: span 2;">
+          <label>Comisión Ex. (%)</label>
+          <input type="text" inputmode="decimal" id="seqComision" value="4.55" oninput="guardarYCalcularSecuencial()">
+        </div>
+      </div>
+      
+      <hr style="margin:14px 0; border:0; border-top:1px solid var(--border);">
+      <div style="font-size:13px; font-weight:bold; margin-bottom:8px;" id="seqCuotasLabel">Cuotas Lay por Pata:</div>
+      <div class="grid">
+        <div class="input-group" id="grpLeg1"><label id="lblLeg1">Cuota Lay Pata 1</label><input type="text" inputmode="decimal" id="leg1" value="2.07" oninput="guardarYCalcularSecuencial()"></div>
+        <div class="input-group" id="grpLeg2"><label id="lblLeg2">Cuota Lay Pata 2</label><input type="text" inputmode="decimal" id="leg2" value="1.71" oninput="guardarYCalcularSecuencial()"></div>
+        <div class="input-group" id="grpLeg3"><label id="lblLeg3">Cuota Lay Pata 3</label><input type="text" inputmode="decimal" id="leg3" value="2.21" oninput="guardarYCalcularSecuencial()"></div>
+        <div class="input-group" id="grpLeg4" style="display:none;"><label id="lblLeg4">Cuota Lay Pata 4</label><input type="text" inputmode="decimal" id="leg4" value="1.50" oninput="guardarYCalcularSecuencial()"></div>
+      </div>
+
+      <!-- Resultados Secuenciales -->
+      <div class="result-box">
+        <div class="result-section-title">Resultados</div>
+        
+        <div class="result-row" id="rowLay1">
+          <span id="titleRes1">Lay Pata 1:</span>
+          <div>
+            <span class="highlight-pill" id="lay1Val">0.00 $</span>
+            <span id="respWrap1" style="font-size:11px; color:#555; margin-left:4px;">(Resp: <b id="resp1Val" style="font-size:11px; color:#000;">0.00 $</b>)</span>
+          </div>
+        </div>
+        
+        <div class="result-row" id="rowLay2">
+          <span id="titleRes2">Lay Pata 2:</span>
+          <div>
+            <span class="highlight-pill" id="lay2Val">0.00 $</span>
+            <span id="respWrap2" style="font-size:11px; color:#555; margin-left:4px;">(Resp: <b id="resp2Val" style="font-size:11px; color:#000;">0.00 $</b>)</span>
+          </div>
+        </div>
+        
+        <div class="result-row" id="rowLay3">
+          <span id="titleRes3">Lay Pata 3:</span>
+          <div>
+            <span class="highlight-pill" id="lay3Val">0.00 $</span>
+            <span id="respWrap3" style="font-size:11px; color:#555; margin-left:4px;">(Resp: <b id="resp3Val" style="font-size:11px; color:#000;">0.00 $</b>)</span>
+          </div>
+        </div>
+        
+        <div class="result-row" id="rowLay4" style="display:none;">
+          <span id="titleRes4">Lay Pata 4:</span>
+          <div>
+            <span class="highlight-pill" id="lay4Val">0.00 $</span>
+            <span id="respWrap4" style="font-size:11px; color:#555; margin-left:4px;">(Resp: <b id="resp4Val" style="font-size:11px; color:#000;">0.00 $</b>)</span>
+          </div>
+        </div>
+        
+        <div class="result-row" style="margin-top:6px;">
+          <span id="titleRiesgoTotal">Riesgo total Lay:</span>
+          <b id="seqRiesgo" class="res-val">0.00 $</b>
+        </div>
+        <div class="result-row" style="border-top:1px dashed var(--border); padding-top:6px; margin-top:6px;">
+          <b>Beneficio Objetivo:</b>
+          <span id="seqBeneficio" class="res-val" style="font-size:16px;">0.00 $</span>
+        </div>
+
+        <!-- Tabla Desglose de Beneficios Secuencial -->
+        <div style="margin-top:14px; font-weight:bold; font-size:14px;">Desglose de beneficios:</div>
+        <div class="table-container">
+          <table class="table-desglose">
+            <thead>
+              <tr>
+                <th style="background:#f1f5f9; color:#000;">Resultado</th>
+                <th style="background:#f1f5f9; color:#000;">Bookie</th>
+                <th style="background:#ffe4e1; color:#000;" id="thExchangeCol">Exchange</th>
+                <th style="background:#f1f5f9; color:#000;">Total</th>
+              </tr>
+            </thead>
+            <tbody id="tblSeqDesgloseBody">
+              <!-- Renderizado dinámico -->
+            </tbody>
+          </table>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let state = {
+      tab: 'estandar',
+      estandarMode: 'exchange',
+      estandarType: 'SR',
+      
+      imp: '200', cb: '2.40', cl: '2.40', com: '4.55',
+      bkImp: '500', bkCb1: '3.00', bkCb2: '1.60',
+
+      seqExBackStake: '100', seqExBackOdds: '6.393', seqComision: '4.55',
+      legsEx: ['2.07', '1.71', '2.21', '1.50'],
+
+      seqBkBackStake: '500', seqBkBackOdds: '5.00',
+      legsBk: ['2.50', '3.10', '2.80', '2.00'],
+
+      seqPlatform: 'exchange',
+      seqType: 'SR',
+      numPatas: 3
+    };
+
+    function loadState() {
+      let saved = localStorage.getItem('calc_matched_betting_state_v2');
+      if (saved) {
+        try { state = Object.assign(state, JSON.parse(saved)); } catch(e){}
+      }
+    }
+
+    function saveState() {
+      localStorage.setItem('calc_matched_betting_state_v2', JSON.stringify(state));
+    }
+
+    function syncInputsToDOM() {
+      document.getElementById('importe').value = state.imp;
+      document.getElementById('cuotaBookie').value = state.cb;
+      document.getElementById('cuotaLay').value = state.cl;
+      document.getElementById('comision').value = state.com;
+
+      document.getElementById('bkImporte').value = state.bkImp;
+      document.getElementById('bkCuota1').value = state.bkCb1;
+      document.getElementById('bkCuota2').value = state.bkCb2;
+
+      syncSeqPlatformInputs();
+
+      selectExchangeMode(null, state.estandarMode, false);
+      selectTypeMode('estandar', null, state.estandarType, false);
+      selectSeqMode(state.seqPlatform, null, false);
+      selectTypeMode('secuencial', null, state.seqType, false);
+      selectPatas(state.numPatas, null, false);
+    }
+
+    function syncSeqPlatformInputs() {
+      if (state.seqPlatform === 'exchange') {
+        document.getElementById('seqBackStake').value = state.seqExBackStake;
+        document.getElementById('seqBackOdds').value = state.seqExBackOdds;
+        document.getElementById('seqComision').value = state.seqComision;
+        for (let i = 1; i <= 4; i++) {
+          document.getElementById('leg' + i).value = state.legsEx[i - 1];
+        }
+      } else {
+        document.getElementById('seqBackStake').value = state.seqBkBackStake;
+        document.getElementById('seqBackOdds').value = state.seqBkBackOdds;
+        for (let i = 1; i <= 4; i++) {
+          document.getElementById('leg' + i).value = state.legsBk[i - 1];
+        }
+      }
+    }
+
+    function switchTab(tabId, btn) {
+      document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+      document.querySelectorAll('.top-nav button').forEach(el => el.classList.remove('active'));
+      document.getElementById(tabId).classList.add('active');
+      if(btn) btn.classList.add('active');
+      else {
+        let idx = tabId === 'estandar' ? 0 : 1;
+        document.querySelectorAll('.top-nav button')[idx].classList.add('active');
+      }
+      state.tab = tabId;
+      saveState();
+    }
+
+    function selectExchangeMode(btn, mode, doCalc=true) {
+      state.estandarMode = mode;
+      let btnEx = document.getElementById('btnModeExchange');
+      let btnBk = document.getElementById('btnModeBookie');
+      if(btnEx && btnBk) {
+        btnEx.classList.remove('active-salmon');
+        btnBk.classList.remove('active-salmon');
+        if(mode === 'exchange') btnEx.classList.add('active-salmon');
+        else btnBk.classList.add('active-salmon');
+      }
+
+      if (mode === 'exchange') {
+        document.getElementById('sectionExchange').style.display = 'block';
+        document.getElementById('sectionBookie').style.display = 'none';
+        if(doCalc) calcularEstandar();
+      } else {
+        document.getElementById('sectionExchange').style.display = 'none';
+        document.getElementById('sectionBookie').style.display = 'block';
+        if(doCalc) calcularBookie();
+      }
+      saveState();
+    }
+
+    function selectSeqMode(platform, btn, doCalc=true) {
+      state.seqPlatform = platform;
+      let btnEx = document.getElementById('btnSeqModeEx');
+      let btnBk = document.getElementById('btnSeqModeBk');
+      if(btnEx && btnBk) {
+        btnEx.classList.remove('active-salmon');
+        btnBk.classList.remove('active-salmon');
+        if(platform === 'exchange') btnEx.classList.add('active-salmon');
+        else btnBk.classList.add('active-salmon');
+      }
+
+      syncSeqPlatformInputs();
+
+      if (platform === 'exchange') {
+        document.getElementById('groupSeqCom').style.display = 'block';
+        document.getElementById('seqCardTitle').innerText = 'Sequential Multi-Lay';
+        document.getElementById('seqCuotasLabel').innerText = 'Cuotas Lay por Pata:';
+        for(let i=1; i<=4; i++) {
+          document.getElementById('lblLeg'+i).innerText = 'Cuota Lay Pata ' + i;
+          document.getElementById('titleRes'+i).innerText = 'Lay Pata ' + i + ':';
+          document.getElementById('respWrap'+i).style.display = 'inline';
+        }
+        document.getElementById('titleRiesgoTotal').innerText = 'Riesgo total Lay:';
+        document.getElementById('thExchangeCol').innerText = 'Exchange';
+      } else {
+        document.getElementById('groupSeqCom').style.display = 'none';
+        document.getElementById('seqCardTitle').innerText = 'Sequential Multi-Bookie';
+        document.getElementById('seqCuotasLabel').innerText = 'Cuotas Bookie (Contra):';
+        for(let i=1; i<=4; i++) {
+          document.getElementById('lblLeg'+i).innerText = 'Cuota Bookie #' + (i+1);
+          document.getElementById('titleRes'+i).innerText = 'Apuesta Bookie #' + (i+1) + ':';
+          document.getElementById('respWrap'+i).style.display = 'none';
+        }
+        document.getElementById('titleRiesgoTotal').innerText = 'Inversión total Cobertura:';
+        document.getElementById('thExchangeCol').innerText = 'Cobertura Bookie';
+      }
+      if(doCalc) calcularSecuencial();
+      saveState();
+    }
+
+    function selectTypeMode(section, btn, mode, doCalc=true) {
+      if (section === 'estandar') {
+        state.estandarType = mode;
+        let parent = btn ? btn.parentElement : document.querySelectorAll('#estandar .card .btn-group')[1];
+        if(parent) {
+          parent.querySelectorAll('.btn').forEach(b => b.classList.remove('active-black'));
+          if(btn) btn.classList.add('active-black');
+          else {
+            let map = {'SR':0, 'SNR':1, 'FSR':2};
+            parent.querySelectorAll('.btn')[map[mode]].classList.add('active-black');
+          }
+        }
+        if (state.estandarMode === 'exchange' && doCalc) calcularEstandar();
+      } else {
+        state.seqType = mode;
+        let parent = btn ? btn.parentElement : document.getElementById('btnSeqSR').parentElement;
+        if(parent) {
+          parent.querySelectorAll('.btn').forEach(b => b.classList.remove('active-black'));
+          if(btn) btn.classList.add('active-black');
+          else {
+            let map = {'SR':0, 'SNR':1, 'FSR':2};
+            parent.querySelectorAll('.btn')[map[mode]].classList.add('active-black');
+          }
+        }
+        if(doCalc) calcularSecuencial();
+      }
+      saveState();
+    }
+
+    function selectPatas(count, btn, doCalc=true) {
+      state.numPatas = count;
+      let parent = btn ? btn.parentElement : document.getElementById('btnPatas3').parentElement;
+      if(parent) {
+        parent.querySelectorAll('.btn').forEach(b => b.classList.remove('active-salmon'));
+        if(btn) btn.classList.add('active-salmon');
+        else parent.querySelectorAll('.btn')[count-2].classList.add('active-salmon');
+      }
+
+      document.getElementById('grpLeg3').style.display = count >= 3 ? 'block' : 'none';
+      document.getElementById('grpLeg4').style.display = count === 4 ? 'block' : 'none';
+
+      document.getElementById('rowLay3').style.display = count >= 3 ? 'flex' : 'none';
+      document.getElementById('rowLay4').style.display = count === 4 ? 'flex' : 'none';
+
+      if(doCalc) calcularSecuencial();
+      saveState();
+    }
+
+    function guardarYCalcularEstandar() {
+      state.imp = document.getElementById('importe').value;
+      state.cb = document.getElementById('cuotaBookie').value;
+      state.cl = document.getElementById('cuotaLay').value;
+      state.com = document.getElementById('comision').value;
+      saveState();
+      calcularEstandar();
+    }
+
+    function guardarYCalcularBookie() {
+      state.bkImp = document.getElementById('bkImporte').value;
+      state.bkCb1 = document.getElementById('bkCuota1').value;
+      state.bkCb2 = document.getElementById('bkCuota2').value;
+      saveState();
+      calcularBookie();
+    }
+
+    function guardarYCalcularSecuencial() {
+      if (state.seqPlatform === 'exchange') {
+        state.seqExBackStake = document.getElementById('seqBackStake').value;
+        state.seqExBackOdds = document.getElementById('seqBackOdds').value;
+        state.seqComision = document.getElementById('seqComision').value;
+        for (let i = 1; i <= 4; i++) {
+          state.legsEx[i - 1] = document.getElementById('leg' + i).value;
+        }
+      } else {
+        state.seqBkBackStake = document.getElementById('seqBackStake').value;
+        state.seqBkBackOdds = document.getElementById('seqBackOdds').value;
+        for (let i = 1; i <= 4; i++) {
+          state.legsBk[i - 1] = document.getElementById('leg' + i).value;
+        }
+      }
+      saveState();
+      calcularSecuencial();
+    }
+
+    function formatVal(val) {
+      let cls = val < 0 ? 'val-neg' : 'val-pos';
+      let sign = val > 0 ? '+' : '';
+      return '<span class="' + cls + '">' + sign + val.toFixed(2) + ' $</span>';
+    }
+
+    function calcularEstandar() {
+      let imp = parseFloat(state.imp.replace(',', '.')) || 0;
+      let cb = parseFloat(state.cb.replace(',', '.')) || 0;
+      let cl = parseFloat(state.cl.replace(',', '.')) || 0;
+      let comVal = parseFloat(state.com.replace(',', '.')) || 0;
+      let com = comVal / 100;
+
+      if (cl <= com) return;
+
+      let layStake = 0;
+      if (state.estandarType === 'SR') layStake = (imp * cb) / (cl - com);
+      else if (state.estandarType === 'SNR') layStake = (imp * (cb - 1)) / (cl - com);
+      else if (state.estandarType === 'FSR') layStake = (imp * cb) / (cl - com);
+
+      let responsabilidad = layStake * (cl - 1);
+
+      let bWinBookie = 0, exWinBookie = 0, exWinEx = 0;
+      if (state.estandarType === 'SR') {
+        bWinBookie = imp * (cb - 1);
+        exWinBookie = -imp;
+        exWinEx = layStake * (1 - com);
+      } else if (state.estandarType === 'SNR') {
+        bWinBookie = imp * (cb - 1);
+        exWinBookie = 0;
+        exWinEx = layStake * (1 - com);
+      } else if (state.estandarType === 'FSR') {
+        bWinBookie = imp * cb;
+        exWinBookie = 0;
+        exWinEx = layStake * (1 - com);
+      }
+
+      let bWinEx = -responsabilidad;
+      let bWinTotal = bWinBookie + bWinEx;
+      let beneficio = bWinTotal;
+      let rating = imp > 0 ? (exWinEx / imp) * 100 : 0;
+
+      document.getElementById('resLay').innerText = layStake.toFixed(2) + ' $';
+      document.getElementById('resResp').innerText = responsabilidad.toFixed(2) + ' $';
+      document.getElementById('resBeneficio').innerHTML = formatVal(beneficio);
+
+      document.getElementById('tblBookieWinBookie').innerHTML = formatVal(bWinBookie);
+      document.getElementById('tblBookieWinEx').innerHTML = formatVal(bWinEx);
+      document.getElementById('tblBookieWinTotal').innerHTML = formatVal(bWinTotal);
+
+      document.getElementById('tblExWinBookie').innerHTML = formatVal(exWinBookie);
+      document.getElementById('tblExWinEx').innerHTML = formatVal(exWinEx);
+      document.getElementById('tblExWinTotal').innerHTML = formatVal(exWinTotal);
+
+      document.getElementById('resRating').innerText = rating.toFixed(2) + '%';
+    }
+
+    function calcularBookie() {
+      let imp1 = parseFloat(state.bkImp.replace(',', '.')) || 0;
+      let cb1 = parseFloat(state.bkCb1.replace(',', '.')) || 0;
+      let cb2 = parseFloat(state.bkCb2.replace(',', '.')) || 0;
+
+      if (cb2 <= 0) return;
+
+      let stake2 = (imp1 * cb1) / cb2;
+      let b1WinB1 = imp1 * (cb1 - 1);
+      let b1WinB2 = -stake2;
+      let b1Total = b1WinB1 + b1WinB2;
+
+      let b2WinB1 = -imp1;
+      let b2WinB2 = stake2 * (cb2 - 1);
+      let b2Total = b2WinB1 + b2WinB2;
+
+      let rating = imp1 > 0 ? ((imp1 + b1Total) / imp1) * 100 : 0;
+
+      document.getElementById('bkResApuesta2').innerText = stake2.toFixed(2) + ' $';
+      document.getElementById('bkResBen2').innerHTML = formatVal(b2WinB2);
+      document.getElementById('bkResBenTotal').innerHTML = formatVal(b1Total);
+
+      document.getElementById('bkTblB1WinB1').innerHTML = formatVal(b1WinB1);
+      document.getElementById('bkTblB1WinB2').innerHTML = formatVal(b1WinB2);
+      document.getElementById('bkTblTotalB1').innerHTML = formatVal(b1Total);
+
+      document.getElementById('bkTblB2WinB1').innerHTML = formatVal(b2WinB1);
+      document.getElementById('bkTblB2WinB2').innerHTML = formatVal(b2WinB2);
+      document.getElementById('bkTblTotalB2').innerHTML = formatVal(b2Total);
+
+      document.getElementById('bkRating').innerText = rating.toFixed(2) + '%';
+    }
+
+    function calcularSecuencial() {
+      let bStake = parseFloat((state.seqPlatform === 'exchange' ? state.seqExBackStake : state.seqBkBackStake).replace(',', '.')) || 0;
+      let bOdds = parseFloat((state.seqPlatform === 'exchange' ? state.seqExBackOdds : state.seqBkBackOdds).replace(',', '.')) || 0;
+      let comVal = parseFloat(state.seqComision.replace(',', '.')) || 0;
+      let c = state.seqPlatform === 'exchange' ? (comVal / 100) : 0;
+
+      let activeLegs = state.seqPlatform === 'exchange' ? state.legsEx : state.legsBk;
+      let oddsList = [
+        parseFloat(activeLegs[0].replace(',', '.')) || 1.01,
+        parseFloat(activeLegs[1].replace(',', '.')) || 1.01
+      ];
+      if (state.numPatas >= 3) oddsList.push(parseFloat(activeLegs[2].replace(',', '.')) || 1.01);
+      if (state.numPatas === 4) oddsList.push(parseFloat(activeLegs[3].replace(',', '.')) || 1.01);
+
+      let fCombo = 1.0;
+      for (let i = 0; i < oddsList.length; i++) {
+        fCombo *= (oddsList[i] - c) / (1 - c);
+      }
+
+      let backReturn = 0, bookieLoss = 0, bookieWinGain = 0;
+      if (state.seqType === 'SR') {
+        backReturn = bStake * bOdds;
+        bookieWinGain = bStake * (bOdds - 1);
+        bookieLoss = -bStake;
+      } else if (state.seqType === 'SNR') {
+        backReturn = bStake * (bOdds - 1);
+        bookieWinGain = bStake * (bOdds - 1);
+        bookieLoss = 0;
+      } else if (state.seqType === 'FSR') {
+        backReturn = bStake * bOdds;
+        bookieWinGain = bStake * bOdds;
+        bookieLoss = 0;
+      }
+
+      let targetT = (backReturn / fCombo) + bookieLoss;
+
+      let stakes = [];
+      let liabilities = [];
+      let netWins = [];
+      let accumLiab = 0;
+
+      for (let i = 0; i < oddsList.length; i++) {
+        let bLossAbs = -bookieLoss;
+        let stakeVal = (bLossAbs + targetT + accumLiab) / (1 - c);
+        
+        let liab = state.seqPlatform === 'exchange' ? stakeVal * (oddsList[i] - 1) : stakeVal;
+        let nWin = state.seqPlatform === 'exchange' ? stakeVal * (1 - c) : stakeVal * (oddsList[i] - 1);
+
+        stakes.push(stakeVal);
+        liabilities.push(liab);
+        netWins.push(nWin);
+        accumLiab += liab;
+      }
+
+      let totalInversion = liabilities.reduce((a, b) => a + b, 0);
+
+      document.getElementById('lay1Val').innerText = stakes[0].toFixed(2) + ' $';
+      document.getElementById('resp1Val').innerText = liabilities[0].toFixed(2) + ' $';
+
+      document.getElementById('lay2Val').innerText = stakes[1].toFixed(2) + ' $';
+      document.getElementById('resp2Val').innerText = liabilities[1].toFixed(2) + ' $';
+
+      if (state.numPatas >= 3) {
+        document.getElementById('lay3Val').innerText = stakes[2].toFixed(2) + ' $';
+        document.getElementById('resp3Val').innerText = liabilities[2].toFixed(2) + ' $';
+      }
+      if (state.numPatas === 4) {
+        document.getElementById('lay4Val').innerText = stakes[3].toFixed(2) + ' $';
+        document.getElementById('resp4Val').innerText = liabilities[3].toFixed(2) + ' $';
+      }
+
+      document.getElementById('seqRiesgo').innerText = totalInversion.toFixed(2) + ' $';
+      document.getElementById('seqBeneficio').innerHTML = formatVal(targetT);
+
+      // Tabla Desglose
+      let tbody = document.getElementById('tblSeqDesgloseBody');
+      tbody.innerHTML = '';
+
+      for (let i = 0; i < state.numPatas; i++) {
+        let tr = document.createElement('tr');
+        let badgesHtml = '';
+        for (let j = 0; j < i; j++) badgesHtml += '<span class="badge-w">W</span>';
+        badgesHtml += '<span class="badge-l">L</span>';
+
+        let exProfit = (bStake === 0 ? 0 : (-bookieLoss)) + targetT;
+        let totRow = targetT;
+
+        let subLineHtml = '';
+        if (i > 0) {
+          let parts = [];
+          for (let j = 0; j < i; j++) {
+            parts.push('<span class="val-neg">-' + liabilities[j].toFixed(2) + ' $</span>');
+          }
+          parts.push('<span class="val-pos">+' + netWins[i].toFixed(2) + ' $</span>');
+          subLineHtml = '<div class="sub-breakdown">' + parts.join('') + '</div>';
+        }
+
+        tr.innerHTML = '<td style="text-align:center;">' + badgesHtml + '</td>' +
+                       '<td>' + formatVal(bookieLoss) + '</td>' +
+                       '<td><div>' + formatVal(exProfit) + '</div>' + subLineHtml + '</td>' +
+                       '<td>' + formatVal(totRow) + '</td>';
+        tbody.appendChild(tr);
+      }
+
+      let trBookieWin = document.createElement('tr');
+      let allWBadges = '';
+      let allLiabParts = [];
+      for (let j = 0; j < state.numPatas; j++) {
+        allWBadges += '<span class="badge-w">W</span>';
+        allLiabParts.push('<span class="val-neg">-' + liabilities[j].toFixed(2) + ' $</span>');
+      }
+
+      let exLossTotal = -totalInversion;
+      let totBookieWin = bookieWinGain + exLossTotal;
+      let subLineAllWin = '<div class="sub-breakdown">' + allLiabParts.join('') + '</div>';
+
+      trBookieWin.innerHTML = '<td style="text-align:center;">' + allWBadges + '</td>' +
+                              '<td>' + formatVal(bookieWinGain) + '</td>' +
+                              '<td><div>' + formatVal(exLossTotal) + '</div>' + subLineAllWin + '</td>' +
+                              '<td>' + formatVal(totBookieWin) + '</td>';
+      tbody.appendChild(trBookieWin);
+    }
+
+    window.onload = function() {
+      loadState();
+      switchTab(state.tab, null);
+      syncInputsToDOM();
+      calcularEstandar();
+      calcularBookie();
+      calcularSecuencial();
+    };
+  </script>
+</body>
+</html>
